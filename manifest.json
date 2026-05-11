@@ -1,0 +1,14 @@
+{
+  "name": "MBS — Conciergerie du Bâtiment",
+  "short_name": "MBS",
+  "description": "Gérez vos demandes de travaux simplement et en toute sécurité.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f8",
+  "theme_color": "#8b1a1a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
