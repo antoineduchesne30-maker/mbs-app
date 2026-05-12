@@ -127,6 +127,13 @@
     select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
     .sign-box{border:2px dashed #d0b8b8;border-radius:12px;min-height:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff9f9;margin-bottom:12px;font-size:12px;color:var(--muted);}
 
+    /* ---- Modal ---- */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:flex-end;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px calc(env(safe-area-inset-bottom,0px) + 20px);width:100%;max-height:90vh;overflow-y:auto;}
+    .modal-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+    .modal-close{font-size:22px;cursor:pointer;color:var(--muted);}
+
     /* ---- Toast ---- */
     #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap;}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -513,7 +520,10 @@
   <div id="s-admin-partners" class="screen">
     <div class="topbar dark"><span class="back" onclick="go('s-admin-home')">←</span><span class="tb-title">Partenaires</span></div>
     <div style="padding:10px 14px 0;flex-shrink:0;">
-      <input class="inp" placeholder="🔍 Rechercher un partenaire…" oninput="filterAdminPartners(this.value)"/>
+      <div style="display:flex;gap:8px;">
+        <input class="inp" style="flex:1;" placeholder="🔍 Rechercher un partenaire…" oninput="filterAdminPartners(this.value)"/>
+        <button onclick="openModal()" style="background:var(--admin);color:#fff;border:none;border-radius:10px;padding:0 16px;font-size:20px;cursor:pointer;flex-shrink:0;font-weight:300;">+</button>
+      </div>
     </div>
     <div class="scroll" id="admin-partners-list"><div class="loading">Chargement…</div></div>
     <div class="nav">
@@ -577,7 +587,21 @@
 
 </div>
 
-<!-- Toast -->
+<!-- Modal Création Partenaire -->
+  <div class="modal-overlay" id="modal-partner">
+    <div class="modal">
+      <div class="modal-title">Nouveau partenaire <span class="modal-close" onclick="closeModal()">×</span></div>
+      <div class="field"><div class="lbl">Prénom & Nom</div><input class="inp" id="mp-name" placeholder="Jean Dupont"/></div>
+      <div class="field"><div class="lbl">E-mail</div><input class="inp" id="mp-email" type="email" placeholder="jean@artisan.fr"/></div>
+      <div class="field"><div class="lbl">Téléphone</div><input class="inp" id="mp-phone" type="tel" placeholder="+33 6 xx xx xx xx"/></div>
+      <div class="field"><div class="lbl">Spécialité</div><select class="inp" id="mp-specialty"><option value="">Choisir…</option><option>Plomberie</option><option>Électricité</option><option>Menuiserie</option><option>Peinture</option><option>Chauffage</option><option>Maçonnerie</option><option>Autre</option></select></div>
+      <div class="field"><div class="lbl">SIRET (optionnel)</div><input class="inp" id="mp-siret" placeholder="123 456 789 00012"/></div>
+      <div class="field"><div class="lbl">Mot de passe provisoire</div><input class="inp" id="mp-pwd" type="password" placeholder="8 caractères minimum"/></div>
+      <button class="btn btn-dark" id="btn-create-partner" onclick="createPartner()">Créer le partenaire</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
 <div id="toast"></div>
 
 <!-- Supabase SDK -->
@@ -662,6 +686,7 @@ async function doLogin() {
   btn.innerHTML = 'Se connecter'; btn.disabled = false;
   if (error) { toast('❌ ' + (error.message === 'Invalid login credentials' ? 'Email ou mot de passe incorrect' : error.message)); return; }
   await loadProfileAndRoute();
+  subscribeRealtime();
 }
 
 async function doAdminLogin() {
@@ -676,6 +701,7 @@ async function doAdminLogin() {
   const { data: prof } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
   if (!prof || prof.role !== 'admin') { await sb.auth.signOut(); toast('❌ Accès non autorisé'); return; }
   currentUser = data.user; currentProfile = prof;
+  subscribeRealtime();
   go('s-admin-home');
 }
 
@@ -1218,6 +1244,112 @@ async function loadPartnerMsgs() {
     </div>`).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune conversation</div>';
 }
 
+
+// ============================================================
+// MODAL PARTENAIRE
+// ============================================================
+function openModal() {
+  document.getElementById('modal-partner').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-partner').classList.remove('open');
+  ['mp-name','mp-email','mp-phone','mp-siret','mp-pwd'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+  const sp = document.getElementById('mp-specialty');
+  if(sp) sp.value = '';
+}
+
+async function createPartner() {
+  const name    = document.getElementById('mp-name').value.trim();
+  const email   = document.getElementById('mp-email').value.trim();
+  const phone   = document.getElementById('mp-phone').value.trim();
+  const spec    = document.getElementById('mp-specialty').value;
+  const siret   = document.getElementById('mp-siret').value.trim();
+  const pwd     = document.getElementById('mp-pwd').value;
+
+  if (!name || !email || !pwd) { toast('⚠️ Nom, e-mail et mot de passe obligatoires'); return; }
+  if (pwd.length < 8) { toast('⚠️ Mot de passe trop court (8 caractères min)'); return; }
+
+  const btn = document.getElementById('btn-create-partner');
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(255,255,255,0.3);border-top-color:#fff;"></div>';
+  btn.disabled = true;
+
+  // Création via Supabase Auth Admin API — on passe par signUp côté client
+  const { data, error } = await sb.auth.signUp({ email, password: pwd });
+  if (error) {
+    btn.innerHTML = 'Créer le partenaire'; btn.disabled = false;
+    toast('❌ ' + error.message); return;
+  }
+
+  const uid = data.user?.id;
+  if (!uid) { btn.innerHTML = 'Créer le partenaire'; btn.disabled = false; toast('❌ Erreur création compte'); return; }
+
+  const { error: pErr } = await sb.from('profiles').insert({
+    id: uid, role: 'partner', full_name: name,
+    phone: phone || null, specialty: spec || null, siret: siret || null, active: true
+  });
+
+  btn.innerHTML = 'Créer le partenaire'; btn.disabled = false;
+
+  if (pErr) { toast('❌ Erreur profil : ' + pErr.message); return; }
+
+  toast('✅ Partenaire créé !');
+  closeModal();
+  loadAdminPartners();
+}
+
+// ============================================================
+// TEMPS RÉEL — Supabase Realtime sur requests + messages
+// ============================================================
+let realtimeChannel = null;
+
+function subscribeRealtime() {
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+
+  realtimeChannel = sb.channel('realtime-mbs')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, (payload) => {
+      // Recharger selon l'écran actif
+      const active = document.querySelector('.screen.active');
+      if (!active) return;
+      const id = active.id;
+      if (id === 's-home') loadHome();
+      if (id === 's-dem') loadDemandes();
+      if (id === 's-admin-home') loadAdminHome();
+      if (id === 's-admin-dem') loadAdminDem();
+      if (id === 's-partner-home') loadPartnerHome();
+      if (id === 's-partner-list') loadPartnerList();
+      if (id === 's-detail' && currentRequest) {
+        // Recharger le statut du détail
+        sb.from('requests').select('*').eq('id', currentRequest.id).single().then(({data}) => {
+          if (data) {
+            currentRequest = data;
+            const statusEl = document.getElementById('detail-status');
+            if (statusEl) statusEl.textContent = statusLabel(data.status);
+            const titleEl = document.getElementById('detail-title');
+            if (titleEl) titleEl.textContent = data.ref;
+          }
+        });
+      }
+      if (id === 's-admin-detail' && currentRequest) openAdminDetail(currentRequest.id);
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+      const active = document.querySelector('.screen.active');
+      if (!active) return;
+      if (active.id === 's-detail') loadDetailMsgs();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
+      // Allumer le badge notif si c'est pour moi
+      if (payload.new?.user_id === currentUser?.id) {
+        const dot = document.getElementById('notif-dot');
+        if (dot) dot.style.display = 'block';
+        toast('🔔 ' + (payload.new.title || 'Nouvelle notification'));
+      }
+    })
+    .subscribe();
+}
+
 // ============================================================
 // INIT — Vérification session au démarrage
 // ============================================================
@@ -1230,6 +1362,7 @@ async function loadPartnerMsgs() {
     if (prof?.role === 'admin') go('s-admin-home');
     else if (prof?.role === 'partner') go('s-partner-home');
     else if (prof) go('s-home');
+    if (prof) subscribeRealtime();
   }
   // Service Worker
   if ('serviceWorker' in navigator) {
