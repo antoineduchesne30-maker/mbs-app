@@ -1,38 +1,1241 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="1671.6">
-  <style type="text/css">
-    body {background-color: #f9f6f6}
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 30.0px; font: 26.0px '.Apple Color Emoji UI'; color: #000000; -webkit-text-stroke: #000000; background-color: #ffffff; background-color: rgba(255, 255, 255, 0.12)}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 43.0px; font: 36.0px '.SF NS Display'; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 11.0px '.SF NS Text'; color: #ffffff; color: rgba(255, 255, 255, 0.45); -webkit-text-stroke: rgba(255, 255, 255, 0.45)}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 15.0px; font: 12.0px '.SF NS Text'; color: #000000; -webkit-text-stroke: #000000; background-color: #e0595d; min-height: 15.0px}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 22.0px; font: 13.0px '.SF NS Text'; color: #ffffff; color: rgba(255, 255, 255, 0.5); -webkit-text-stroke: rgba(255, 255, 255, 0.5)}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; line-height: 17.0px; font: 14.0px '.SF NS Text'; color: #000000; color: rgba(0, 0, 0, 0.85); -webkit-text-stroke: rgba(0, 0, 0, 0.85); background-color: #e0595d}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 13.0px; font: 11.0px '.SF NS Text'; color: #ffffff; color: rgba(255, 255, 255, 0.3); -webkit-text-stroke: rgba(255, 255, 255, 0.3)}
-    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; line-height: 16.0px; font: 13.0px '.SF NS Text'; color: #ffffff; color: rgba(255, 255, 255, 0.5); -webkit-text-stroke: rgba(255, 255, 255, 0.5)}
-    p.p9 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 15.0px; font: 12.0px '.SF NS Text Semibold'; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #0e0e0e; min-height: 15.0px}
-    span.s1 {font-kerning: none}
-    span.s2 {font-kerning: none; background-color: #57080d}
-    span.s3 {font: 14.0px 'Helvetica Neue'; font-kerning: none}
-    span.s4 {font: 12.0px 'Helvetica Neue'; font-kerning: none}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#8b1a1a"/>
+  <title>MBS — Conciergerie du Bâtiment</title>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:#faf8f8;overflow:hidden;}
+    #root{height:100%;display:flex;flex-direction:column;}
+
+    /* ---- Variables de couleur par rôle ---- */
+    :root{
+      --primary:#8b1a1a;
+      --primary-light:#fce7e7;
+      --primary-bg:#fff8f8;
+      --admin:#1a1a2e;
+      --admin-light:#e8e8f5;
+      --partner:#0f4c3a;
+      --partner-light:#d1fae5;
+      --bg:#faf8f8;
+      --surface:#fff;
+      --border:#ede8e8;
+      --text:#111;
+      --muted:#aaa;
+      --radius:12px;
+    }
+
+    /* ---- Layout ---- */
+    .screen{display:none;flex-direction:column;height:100%;overflow:hidden;}
+    .screen.active{display:flex;}
+    .topbar{padding:env(safe-area-inset-top,44px) 16px 12px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+    .topbar.red{background:var(--primary);}
+    .topbar.dark{background:var(--admin);}
+    .topbar.green{background:var(--partner);}
+    .tb-title{font-size:15px;font-weight:600;color:#fff;flex:1;}
+    .back{cursor:pointer;font-size:22px;color:rgba(255,255,255,0.8);line-height:1;padding:4px;}
+    .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;}
+
+    /* ---- Composants ---- */
+    .inp{width:100%;background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s;}
+    .inp:focus{border-color:var(--primary);}
+    .lbl{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+    .field{margin-bottom:12px;}
+    .btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:opacity .15s;}
+    .btn:active{opacity:.85;}
+    .btn-red{background:var(--primary);color:#fff;}
+    .btn-dark{background:var(--admin);color:#fff;}
+    .btn-green{background:var(--partner);color:#fff;}
+    .btn-outline{background:#fff;color:var(--primary);border:1.5px solid var(--primary);}
+    .card{background:#fff;border-radius:var(--radius);border:1px solid var(--border);padding:12px;margin-bottom:8px;cursor:pointer;transition:box-shadow .15s;}
+    .card:active{box-shadow:0 0 0 2px var(--primary-light);}
+
+    /* ---- Pills ---- */
+    .pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;letter-spacing:.2px;}
+    .pill-new{background:#fce7e7;color:#7f1d1d;}
+    .pill-rdv{background:#fff0e6;color:#7c3000;}
+    .pill-devis{background:#fef9c3;color:#713f12;}
+    .pill-plan{background:#dbeafe;color:#1e3a8a;}
+    .pill-clo{background:#d1fae5;color:#065f46;}
+    .pill-urgent{background:#fee2e2;color:#991b1b;}
+
+    /* ---- Bottom Nav ---- */
+    .nav{display:flex;justify-content:space-around;padding:8px 4px calc(env(safe-area-inset-bottom,0px) + 8px);border-top:1px solid var(--border);background:#fff;flex-shrink:0;}
+    .ni{cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;position:relative;padding:4px 0;}
+    .ni-ico{font-size:18px;}
+    .ni-lbl{font-size:9px;color:var(--muted);font-weight:500;}
+    .ni-lbl.on{color:var(--primary);font-weight:700;}
+    .ni-lbl.aon{color:var(--admin);font-weight:700;}
+    .ni-lbl.gon{color:var(--partner);font-weight:700;}
+    .dot{position:absolute;top:2px;right:14px;width:8px;height:8px;background:#ef4444;border-radius:50%;border:2px solid #fff;}
+
+    /* ---- Tags filtres ---- */
+    .tags{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+    .tags::-webkit-scrollbar{display:none;}
+    .tag{white-space:nowrap;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:#fff;color:#666;flex-shrink:0;transition:all .15s;}
+    .tag.on{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .tag.aon{background:var(--admin);color:#fff;border-color:var(--admin);}
+
+    /* ---- Stats grid ---- */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px;}
+    .stat{background:rgba(255,255,255,0.12);border-radius:10px;padding:9px 4px;text-align:center;}
+    .stat-n{font-size:17px;font-weight:700;color:#fff;}
+    .stat-l{font-size:7px;color:rgba(255,255,255,0.6);margin-top:1px;}
+
+    /* ---- Formulaires spéciaux ---- */
+    .role-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:border-color .15s;}
+    .role-card.selected{border-color:var(--primary);background:var(--primary-bg);}
+    .type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+    .type-btn{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .15s;}
+    .type-btn.selected{border-color:var(--primary);background:var(--primary-bg);}
+    .urg-row{display:flex;gap:8px;margin-bottom:14px;}
+    .urg-btn{flex:1;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:9px;text-align:center;font-size:11px;cursor:pointer;transition:all .15s;}
+    .urg-btn.selected{border-color:var(--primary);background:var(--primary-bg);color:var(--primary);font-weight:600;}
+
+    /* ---- Progress bar ---- */
+    .progress-wrap{background:var(--primary-light);height:4px;border-radius:99px;margin-top:6px;}
+    .progress-bar{background:var(--primary);height:4px;border-radius:99px;transition:width .3s;}
+
+    /* ---- Tabs ---- */
+    .tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+    .tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+    .tab.on{color:var(--primary);font-weight:700;border-bottom-color:var(--primary);}
+    .tab.off{color:var(--muted);}
+
+    /* ---- Messages ---- */
+    .msg-wrap{display:flex;flex-direction:column;gap:8px;padding:14px;flex:1;overflow-y:auto;}
+    .bubble-in{background:#fff;border-radius:12px 12px 12px 3px;padding:10px 12px;font-size:12px;color:var(--text);line-height:1.5;border:1px solid var(--border);max-width:80%;align-self:flex-start;}
+    .bubble-out{background:var(--primary);border-radius:12px 12px 3px 12px;padding:10px 12px;font-size:12px;color:#fff;line-height:1.5;max-width:80%;align-self:flex-end;}
+    .msg-input{display:flex;gap:8px;padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 10px);border-top:1px solid var(--border);background:#fff;flex-shrink:0;}
+    .msg-input input{flex:1;border:1px solid var(--border);border-radius:20px;padding:9px 14px;font-size:13px;outline:none;}
+    .send-btn{background:var(--primary);color:#fff;border:none;border-radius:50%;width:38px;height:38px;font-size:16px;cursor:pointer;flex-shrink:0;}
+
+    /* ---- Divers ---- */
+    .separator{display:flex;align-items:center;gap:10px;margin:14px 0;}
+    .separator span{font-size:11px;color:var(--muted);white-space:nowrap;}
+    .separator::before,.separator::after{content:'';flex:1;height:1px;background:var(--border);}
+    .alert{background:var(--primary-bg);border:1px solid #f0dede;border-radius:10px;padding:10px 12px;font-size:11px;color:var(--primary);margin-bottom:12px;}
+    .section-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:16px;}
+    .section-title:first-child{margin-top:0;}
+    .loading{display:flex;align-items:center;justify-content:center;flex:1;font-size:13px;color:var(--muted);}
+    .badge{display:inline-flex;align-items:center;background:var(--primary-light);border-radius:5px;padding:1px 6px;font-size:9px;color:var(--primary);gap:2px;margin-left:4px;}
+    textarea.inp{resize:none;min-height:80px;font-family:inherit;}
+    select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;}
+    .sign-box{border:2px dashed #d0b8b8;border-radius:12px;min-height:70px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff9f9;margin-bottom:12px;font-size:12px;color:var(--muted);}
+
+    /* ---- Toast ---- */
+    #toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;z-index:9999;white-space:nowrap;}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+    /* ---- Spinner ---- */
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;}
   </style>
 </head>
 <body>
-<p class="p1"><span class="s1">🔧</span></p>
-<p class="p2"><span class="s2">MBS</span></p>
-<p class="p3"><span class="s2">CONCIERGERIE DU BÂTIMENT</span></p>
-<p class="p4"><span class="s1"></span><br></p>
-<p class="p5"><span class="s2">Gérez vos demandes de travaux</span></p>
-<p class="p5"><span class="s2">simplement et en toute sécurité.</span></p>
-<p class="p6"><span class="s3">Se connecter</span></p>
-<p class="p7"><span class="s2">ou</span></p>
-<p class="p8"><span class="s2">Faire une demande rapide →</span></p>
-<p class="p9"><span class="s4"></span><br></p>
+<div id="root">
+  <!-- LANDING -->
+  <div id="s-land" class="screen active">
+    <div style="background:#6b0f0f;flex:1;display:flex;flex-direction:column;padding:env(safe-area-inset-top,52px) 24px 40px;">
+      <div style="margin-bottom:auto;padding-top:20px;">
+        <div style="width:56px;height:56px;background:rgba(255,255,255,0.12);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:20px;">🔧</div>
+        <div style="font-size:36px;font-weight:800;color:#fff;letter-spacing:-1.5px;margin-bottom:4px;">MBS</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:10px;">Conciergerie du Bâtiment</div>
+        <div style="width:40px;height:2px;background:#e87070;border-radius:99px;margin-bottom:16px;"></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.7;">Gérez vos demandes de travaux<br>simplement et en toute sécurité.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn" style="background:#e87070;" onclick="go('s-login')">Se connecter</button>
+        <div class="separator"><span style="color:rgba(255,255,255,0.3);">ou</span></div>
+        <button onclick="go('s-req')" style="background:transparent;border:none;color:rgba(255,255,255,0.5);font-size:13px;cursor:pointer;text-align:center;">Faire une demande rapide →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONNEXION -->
+  <div id="s-login" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-land')">←</span><span class="tb-title">Connexion</span></div>
+    <div class="scroll">
+      <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">Bon retour 👋</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">Connectez-vous à votre espace MBS</div>
+      <div class="field"><div class="lbl">E-mail</div><input class="inp" id="login-email" type="email" placeholder="vous@exemple.fr" autocomplete="email"/></div>
+      <div class="field"><div class="lbl">Mot de passe</div><input class="inp" id="login-pwd" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+      <div style="text-align:right;margin-bottom:20px;"><span style="font-size:12px;color:var(--primary);cursor:pointer;">Mot de passe oublié ?</span></div>
+      <button class="btn btn-red" id="btn-login" onclick="doLogin()">Se connecter</button>
+      <div class="separator"><span>ou</span></div>
+      <div style="background:var(--primary-bg);border-radius:12px;padding:14px;text-align:center;border:1px solid var(--border);margin-bottom:12px;">
+        <div style="font-size:12px;color:#888;margin-bottom:8px;">Pas encore de compte ?</div>
+        <button class="btn btn-red" style="padding:10px;" onclick="go('s-register')">Créer un compte gratuitement</button>
+      </div>
+      <div style="text-align:center;margin-top:10px;"><span style="font-size:11px;color:var(--muted);">Accès admin ? </span><span style="font-size:11px;color:var(--admin);cursor:pointer;font-weight:600;" onclick="go('s-admin-login')">Espace MBS →</span></div>
+    </div>
+  </div>
+
+  <!-- INSCRIPTION -->
+  <div id="s-register" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-login')">←</span><span class="tb-title">Créer un compte</span></div>
+    <div class="scroll">
+      <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:12px;">Je suis…</div>
+      <div class="role-card selected" id="rc-client" onclick="selectRole('client')">
+        <div style="width:38px;height:38px;border-radius:50%;background:#fce7e7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🏠</div>
+        <div><div style="font-size:13px;font-weight:600;">Propriétaire / Conciergerie</div><div style="font-size:11px;color:var(--muted);">Gérez vos biens et suivez les travaux</div></div>
+      </div>
+      <div class="role-card" id="rc-partner" onclick="selectRole('partner')">
+        <div style="width:38px;height:38px;border-radius:50%;background:#d1fae5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🔨</div>
+        <div><div style="font-size:13px;font-weight:600;">Artisan / Partenaire</div><div style="font-size:11px;color:var(--muted);">Recevez et gérez vos missions</div></div>
+      </div>
+      <div class="field" style="margin-top:4px;"><div class="lbl">Prénom & Nom</div><input class="inp" id="reg-name" placeholder="Jean Dupont" autocomplete="name"/></div>
+      <div class="field"><div class="lbl">E-mail</div><input class="inp" id="reg-email" type="email" placeholder="vous@exemple.fr" autocomplete="email"/></div>
+      <div class="field"><div class="lbl">Téléphone</div><input class="inp" id="reg-phone" type="tel" placeholder="+33 6 xx xx xx xx" autocomplete="tel"/></div>
+      <div class="field" id="field-specialty" style="display:none;"><div class="lbl">Spécialité</div>
+        <select class="inp" id="reg-specialty">
+          <option value="">Choisir…</option>
+          <option>Plomberie</option><option>Électricité</option><option>Menuiserie</option>
+          <option>Peinture</option><option>Chauffage</option><option>Maçonnerie</option><option>Autre</option>
+        </select>
+      </div>
+      <div class="field"><div class="lbl">Mot de passe</div><input class="inp" id="reg-pwd" type="password" placeholder="8 caractères minimum" autocomplete="new-password"/></div>
+      <div style="background:var(--primary-bg);border-radius:10px;padding:10px;font-size:11px;color:#666;margin-bottom:14px;line-height:1.5;">En créant un compte vous acceptez les <span style="color:var(--primary);cursor:pointer;">CGU MBS</span>.</div>
+      <button class="btn btn-red" id="btn-register" onclick="doRegister()">Créer mon compte</button>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div id="s-admin-login" class="screen">
+    <div class="topbar dark"><span class="back" onclick="go('s-land')">←</span><span class="tb-title">Espace administrateur</span></div>
+    <div class="scroll" style="display:flex;flex-direction:column;justify-content:center;">
+      <div style="width:56px;height:56px;background:var(--admin);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px;align-self:center;">⚙️</div>
+      <div style="font-size:18px;font-weight:700;text-align:center;margin-bottom:4px;">Accès restreint</div>
+      <div style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:24px;">Réservé aux administrateurs MBS</div>
+      <div class="field"><div class="lbl">Identifiant admin</div><input class="inp" id="admin-email" type="email" placeholder="admin@mbs.fr"/></div>
+      <div class="field"><div class="lbl">Mot de passe</div><input class="inp" id="admin-pwd" type="password" placeholder="••••••••"/></div>
+      <button class="btn btn-dark" id="btn-admin-login" style="margin-top:8px;" onclick="doAdminLogin()">Accéder au tableau de bord</button>
+      <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:16px;">Connexion sécurisée · MBS Admin</div>
+    </div>
+  </div>
+
+  <!-- DEMANDE RAPIDE (non connecté) -->
+  <div id="s-req" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-land')">←</span><span class="tb-title">Nouvelle demande</span></div>
+    <div class="scroll">
+      <div class="section-title">📍 Lieu</div>
+      <div class="field"><div class="lbl">Adresse</div><input class="inp" id="req-addr" placeholder="12 rue des Lilas, Paris 75011"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div><div class="lbl">Bâtiment</div><input class="inp" id="req-bat" placeholder="Bât. B"/></div>
+        <div><div class="lbl">Appartement</div><input class="inp" id="req-apt" placeholder="Apt. 4A"/></div>
+      </div>
+      <div class="section-title">🔨 Type de travaux</div>
+      <div class="type-grid" id="type-grid">
+        <div class="type-btn selected" onclick="selType(this,'Plomberie')"><div style="font-size:20px;">🚿</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Plomberie</div></div>
+        <div class="type-btn" onclick="selType(this,'Électricité')"><div style="font-size:20px;">⚡</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Électricité</div></div>
+        <div class="type-btn" onclick="selType(this,'Menuiserie')"><div style="font-size:20px;">🚪</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Menuiserie</div></div>
+        <div class="type-btn" onclick="selType(this,'Peinture')"><div style="font-size:20px;">🖌️</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Peinture</div></div>
+        <div class="type-btn" onclick="selType(this,'Chauffage')"><div style="font-size:20px;">❄️</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Chauffage</div></div>
+        <div class="type-btn" onclick="selType(this,'Maçonnerie')"><div style="font-size:20px;">🧱</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Maçonnerie</div></div>
+      </div>
+      <div class="section-title">⚠️ Urgence</div>
+      <div class="urg-row" id="urg-row">
+        <div class="urg-btn selected" onclick="selUrg(this,'Normale')">Normale</div>
+        <div class="urg-btn" onclick="selUrg(this,'Haute')">Haute</div>
+        <div class="urg-btn" onclick="selUrg(this,'Urgente')">🚨 Urgente</div>
+      </div>
+      <div class="section-title">📝 Description</div>
+      <div class="field"><textarea class="inp" id="req-desc" placeholder="Décrivez le problème en détail…"></textarea></div>
+      <div class="field"><div class="lbl">E-mail (pour le suivi)</div><input class="inp" id="req-email" type="email" placeholder="vous@exemple.fr"/></div>
+      <button class="btn btn-red" onclick="submitRequest()">Envoyer la demande</button>
+    </div>
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div id="s-confirm" class="screen">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 24px;text-align:center;">
+      <div style="width:72px;height:72px;background:#d1fae5;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:20px;">✓</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:6px;">Demande envoyée !</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Votre référence</div>
+      <div id="confirm-ref" style="font-size:16px;font-weight:700;color:var(--primary);background:var(--primary-bg);padding:8px 18px;border-radius:10px;margin-bottom:18px;">MBS-2026-xxxx</div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;width:100%;text-align:left;margin-bottom:24px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Prochaine étape</div>
+        <div style="font-size:12px;color:#333;line-height:1.6;">Un responsable MBS examinera votre demande sous 48h et vous contactera.</div>
+      </div>
+      <button class="btn btn-red" onclick="go('s-land')">Retour à l'accueil</button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- HOME CLIENT -->
+  <!-- ======================================================== -->
+  <div id="s-home" class="screen">
+    <div style="background:var(--primary);padding:env(safe-area-inset-top,44px) 16px 14px;flex-shrink:0;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);">Bonjour</div>
+          <div id="home-name" style="font-size:20px;font-weight:700;color:#fff;">…</div>
+          <div id="home-role" style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:1px;">Client</div>
+        </div>
+        <div onclick="go('s-notif')" style="cursor:pointer;position:relative;margin-top:4px;">
+          <span style="font-size:24px;">🔔</span>
+          <div id="notif-dot" class="dot" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="stats" id="home-stats">
+        <div class="stat"><div class="stat-n">—</div><div class="stat-l">Nouvelles</div></div>
+        <div class="stat"><div class="stat-n">—</div><div class="stat-l">En cours</div></div>
+        <div class="stat"><div class="stat-n">—</div><div class="stat-l">Planifiées</div></div>
+        <div class="stat"><div class="stat-n">—</div><div class="stat-l">Clôturées</div></div>
+      </div>
+    </div>
+    <div class="scroll" id="home-list">
+      <div class="section-title">Demandes récentes</div>
+      <div class="loading">Chargement…</div>
+    </div>
+    <div style="padding:8px 14px 6px;flex-shrink:0;"><button class="btn btn-red" onclick="go('s-req-auth')">+ Nouvelle demande</button></div>
+    <div class="nav">
+      <div class="ni"><div class="ni-ico">🏠</div><div class="ni-lbl on">Accueil</div></div>
+      <div class="ni" onclick="go('s-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni" onclick="go('s-msgs-list')"><div class="ni-ico">💬</div><div class="ni-lbl">Messages</div><div class="dot" id="msg-dot" style="display:none;"></div></div>
+      <div class="ni" onclick="go('s-histo')"><div class="ni-ico">🗄️</div><div class="ni-lbl">Archives</div></div>
+      <div class="ni" onclick="go('s-profil')"><div class="ni-ico">👤</div><div class="ni-lbl">Profil</div></div>
+    </div>
+  </div>
+
+  <!-- DEMANDES CLIENT -->
+  <div id="s-dem" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-home')">←</span><span class="tb-title">Mes demandes</span></div>
+    <div style="padding:10px 14px 0;flex-shrink:0;">
+      <div class="tags" id="dem-tags">
+        <span class="tag on" onclick="filterDem('all',this)">Toutes</span>
+        <span class="tag" onclick="filterDem('nouvelle',this)">Nouvelle</span>
+        <span class="tag" onclick="filterDem('rdv',this)">Att. RDV</span>
+        <span class="tag" onclick="filterDem('devis',this)">Att. devis</span>
+        <span class="tag" onclick="filterDem('planifiee',this)">Planifiée</span>
+        <span class="tag" onclick="filterDem('cloturee',this)">Clôturée</span>
+      </div>
+    </div>
+    <div class="scroll" id="dem-list"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-home')"><div class="ni-ico">🏠</div><div class="ni-lbl">Accueil</div></div>
+      <div class="ni"><div class="ni-ico">📋</div><div class="ni-lbl on">Demandes</div></div>
+      <div class="ni" onclick="go('s-msgs-list')"><div class="ni-ico">💬</div><div class="ni-lbl">Messages</div></div>
+      <div class="ni" onclick="go('s-histo')"><div class="ni-ico">🗄️</div><div class="ni-lbl">Archives</div></div>
+      <div class="ni" onclick="go('s-profil')"><div class="ni-ico">👤</div><div class="ni-lbl">Profil</div></div>
+    </div>
+  </div>
+
+  <!-- DÉTAIL DEMANDE -->
+  <div id="s-detail" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-dem')">←</span><span class="tb-title" id="detail-title">Demande</span></div>
+    <div class="tabs" id="detail-tabs">
+      <div class="tab on" onclick="showTab('suivi')">Suivi</div>
+      <div class="tab off" onclick="showTab('devis')">Devis</div>
+      <div class="tab off" onclick="showTab('msgs')">Messages</div>
+    </div>
+    <div id="tab-suivi" class="scroll">
+      <div class="section-title">Informations</div>
+      <div id="detail-info" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:10px;">
+        <div class="loading">Chargement…</div>
+      </div>
+      <div class="section-title">Statut</div>
+      <div id="detail-status" style="background:var(--primary-bg);border-radius:10px;padding:10px;font-size:12px;color:var(--primary);text-align:center;border:1px solid #f0dede;"></div>
+    </div>
+    <div id="tab-devis" class="scroll" style="display:none;">
+      <div id="devis-content"><div class="loading">Chargement…</div></div>
+    </div>
+    <div id="tab-msgs" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="msg-wrap" id="msgs-content"></div>
+      <div class="msg-input">
+        <input id="msg-inp" placeholder="Votre message…" onkeydown="if(event.key==='Enter')sendMsg()"/>
+        <button class="send-btn" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOUVELLE DEMANDE (connecté) -->
+  <div id="s-req-auth" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-home')">←</span><span class="tb-title">Nouvelle demande</span></div>
+    <div class="scroll">
+      <div class="section-title">📍 Lieu</div>
+      <div class="field"><div class="lbl">Adresse</div><input class="inp" id="rqa-addr" placeholder="12 rue des Lilas, Paris 75011"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div><div class="lbl">Bâtiment</div><input class="inp" id="rqa-bat" placeholder="Bât. B"/></div>
+        <div><div class="lbl">Appartement</div><input class="inp" id="rqa-apt" placeholder="Apt. 4A"/></div>
+      </div>
+      <div class="section-title">🔨 Type de travaux</div>
+      <div class="type-grid" id="rqa-type-grid">
+        <div class="type-btn selected" onclick="selType2(this,'Plomberie')"><div style="font-size:20px;">🚿</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Plomberie</div></div>
+        <div class="type-btn" onclick="selType2(this,'Électricité')"><div style="font-size:20px;">⚡</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Électricité</div></div>
+        <div class="type-btn" onclick="selType2(this,'Menuiserie')"><div style="font-size:20px;">🚪</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Menuiserie</div></div>
+        <div class="type-btn" onclick="selType2(this,'Peinture')"><div style="font-size:20px;">🖌️</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Peinture</div></div>
+        <div class="type-btn" onclick="selType2(this,'Chauffage')"><div style="font-size:20px;">❄️</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Chauffage</div></div>
+        <div class="type-btn" onclick="selType2(this,'Maçonnerie')"><div style="font-size:20px;">🧱</div><div style="font-size:11px;font-weight:500;margin-top:4px;">Maçonnerie</div></div>
+      </div>
+      <div class="section-title">⚠️ Urgence</div>
+      <div class="urg-row" id="rqa-urg-row">
+        <div class="urg-btn selected" onclick="selUrg2(this,'Normale')">Normale</div>
+        <div class="urg-btn" onclick="selUrg2(this,'Haute')">Haute</div>
+        <div class="urg-btn" onclick="selUrg2(this,'Urgente')">🚨 Urgente</div>
+      </div>
+      <div class="section-title">📝 Description</div>
+      <div class="field"><textarea class="inp" id="rqa-desc" placeholder="Décrivez le problème en détail…"></textarea></div>
+      <button class="btn btn-red" onclick="submitRequestAuth()">Envoyer la demande</button>
+    </div>
+  </div>
+
+  <!-- MESSAGES LIST -->
+  <div id="s-msgs-list" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-home')">←</span><span class="tb-title">Messages</span></div>
+    <div class="scroll" id="msgs-list-content"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-home')"><div class="ni-ico">🏠</div><div class="ni-lbl">Accueil</div></div>
+      <div class="ni" onclick="go('s-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl on">Messages</div></div>
+      <div class="ni" onclick="go('s-histo')"><div class="ni-ico">🗄️</div><div class="ni-lbl">Archives</div></div>
+      <div class="ni" onclick="go('s-profil')"><div class="ni-ico">👤</div><div class="ni-lbl">Profil</div></div>
+    </div>
+  </div>
+
+  <!-- ARCHIVES -->
+  <div id="s-histo" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-home')">←</span><span class="tb-title">Archives</span></div>
+    <div class="scroll" id="histo-list"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-home')"><div class="ni-ico">🏠</div><div class="ni-lbl">Accueil</div></div>
+      <div class="ni" onclick="go('s-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni" onclick="go('s-msgs-list')"><div class="ni-ico">💬</div><div class="ni-lbl">Messages</div></div>
+      <div class="ni"><div class="ni-ico">🗄️</div><div class="ni-lbl on">Archives</div></div>
+      <div class="ni" onclick="go('s-profil')"><div class="ni-ico">👤</div><div class="ni-lbl">Profil</div></div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div id="s-notif" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-home')">←</span><span class="tb-title">Notifications</span></div>
+    <div class="scroll" id="notif-list"><div class="loading">Chargement…</div></div>
+  </div>
+
+  <!-- PROFIL -->
+  <div id="s-profil" class="screen">
+    <div class="topbar red"><span class="back" onclick="go('s-home')">←</span><span class="tb-title">Mon profil</span></div>
+    <div class="scroll">
+      <div id="profil-info" style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:14px;margin-bottom:12px;"></div>
+      <button class="btn" style="background:#fff;color:#ef4444;border:1.5px solid #fca5a5;margin-bottom:8px;" onclick="doLogout()">Se déconnecter</button>
+    </div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-home')"><div class="ni-ico">🏠</div><div class="ni-lbl">Accueil</div></div>
+      <div class="ni" onclick="go('s-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni" onclick="go('s-msgs-list')"><div class="ni-ico">💬</div><div class="ni-lbl">Messages</div></div>
+      <div class="ni" onclick="go('s-histo')"><div class="ni-ico">🗄️</div><div class="ni-lbl">Archives</div></div>
+      <div class="ni"><div class="ni-ico">👤</div><div class="ni-lbl on">Profil</div></div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- ADMIN -->
+  <!-- ======================================================== -->
+  <div id="s-admin-home" class="screen">
+    <div style="background:var(--admin);padding:env(safe-area-inset-top,44px) 16px 14px;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);">Tableau de bord</div>
+          <div style="font-size:20px;font-weight:700;color:#fff;">MBS Admin</div>
+        </div>
+        <span style="font-size:24px;">⚙️</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">
+        <div class="stat"><div class="stat-n" id="adm-stat-new">—</div><div class="stat-l">Nouvelles</div></div>
+        <div class="stat"><div class="stat-n" id="adm-stat-cours">—</div><div class="stat-l">En cours</div></div>
+        <div class="stat"><div class="stat-n" id="adm-stat-clo">—</div><div class="stat-l">Clôturées</div></div>
+      </div>
+    </div>
+    <div class="scroll" id="admin-recent"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni"><div class="ni-ico">📊</div><div class="ni-lbl aon">Tableau</div></div>
+      <div class="ni" onclick="go('s-admin-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni" onclick="go('s-admin-clients')"><div class="ni-ico">👥</div><div class="ni-lbl">Clients</div></div>
+      <div class="ni" onclick="go('s-admin-partners')"><div class="ni-ico">🔨</div><div class="ni-lbl">Partenaires</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <div id="s-admin-dem" class="screen">
+    <div class="topbar dark"><span class="back" onclick="go('s-admin-home')">←</span><span class="tb-title">Toutes les demandes</span></div>
+    <div style="padding:10px 14px 0;flex-shrink:0;">
+      <div class="tags" id="admin-dem-tags">
+        <span class="tag aon" onclick="filterAdminDem('all',this)">Toutes</span>
+        <span class="tag" onclick="filterAdminDem('nouvelle',this)">Nouvelle</span>
+        <span class="tag" onclick="filterAdminDem('rdv',this)">RDV</span>
+        <span class="tag" onclick="filterAdminDem('devis',this)">Devis</span>
+        <span class="tag" onclick="filterAdminDem('planifiee',this)">Planifiée</span>
+        <span class="tag" onclick="filterAdminDem('cloturee',this)">Clôturée</span>
+      </div>
+    </div>
+    <div class="scroll" id="admin-dem-list"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-admin-home')"><div class="ni-ico">📊</div><div class="ni-lbl">Tableau</div></div>
+      <div class="ni"><div class="ni-ico">📋</div><div class="ni-lbl aon">Demandes</div></div>
+      <div class="ni" onclick="go('s-admin-clients')"><div class="ni-ico">👥</div><div class="ni-lbl">Clients</div></div>
+      <div class="ni" onclick="go('s-admin-partners')"><div class="ni-ico">🔨</div><div class="ni-lbl">Partenaires</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <!-- ADMIN DÉTAIL DEMANDE -->
+  <div id="s-admin-detail" class="screen">
+    <div class="topbar dark"><span class="back" onclick="go('s-admin-dem')">←</span><span class="tb-title" id="admin-detail-title">Demande</span></div>
+    <div class="scroll" id="admin-detail-content"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-admin-home')"><div class="ni-ico">📊</div><div class="ni-lbl">Tableau</div></div>
+      <div class="ni" onclick="go('s-admin-dem')"><div class="ni-ico">📋</div><div class="ni-lbl aon">Demandes</div></div>
+      <div class="ni" onclick="go('s-admin-clients')"><div class="ni-ico">👥</div><div class="ni-lbl">Clients</div></div>
+      <div class="ni" onclick="go('s-admin-partners')"><div class="ni-ico">🔨</div><div class="ni-lbl">Partenaires</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <div id="s-admin-clients" class="screen">
+    <div class="topbar dark"><span class="back" onclick="go('s-admin-home')">←</span><span class="tb-title">Clients</span></div>
+    <div style="padding:10px 14px 0;flex-shrink:0;">
+      <input class="inp" placeholder="🔍 Rechercher un client…" oninput="filterAdminClients(this.value)"/>
+    </div>
+    <div class="scroll" id="admin-clients-list"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-admin-home')"><div class="ni-ico">📊</div><div class="ni-lbl">Tableau</div></div>
+      <div class="ni" onclick="go('s-admin-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni"><div class="ni-ico">👥</div><div class="ni-lbl aon">Clients</div></div>
+      <div class="ni" onclick="go('s-admin-partners')"><div class="ni-ico">🔨</div><div class="ni-lbl">Partenaires</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <div id="s-admin-partners" class="screen">
+    <div class="topbar dark"><span class="back" onclick="go('s-admin-home')">←</span><span class="tb-title">Partenaires</span></div>
+    <div style="padding:10px 14px 0;flex-shrink:0;">
+      <input class="inp" placeholder="🔍 Rechercher un partenaire…" oninput="filterAdminPartners(this.value)"/>
+    </div>
+    <div class="scroll" id="admin-partners-list"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-admin-home')"><div class="ni-ico">📊</div><div class="ni-lbl">Tableau</div></div>
+      <div class="ni" onclick="go('s-admin-dem')"><div class="ni-ico">📋</div><div class="ni-lbl">Demandes</div></div>
+      <div class="ni" onclick="go('s-admin-clients')"><div class="ni-ico">👥</div><div class="ni-lbl">Clients</div></div>
+      <div class="ni"><div class="ni-ico">🔨</div><div class="ni-lbl aon">Partenaires</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PARTENAIRE -->
+  <!-- ======================================================== -->
+  <div id="s-partner-home" class="screen">
+    <div style="background:var(--partner);padding:env(safe-area-inset-top,44px) 16px 14px;flex-shrink:0;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);">Bonjour</div>
+          <div id="partner-name" style="font-size:20px;font-weight:700;color:#fff;">…</div>
+          <div id="partner-specialty" style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px;">Partenaire</div>
+        </div>
+        <span style="font-size:24px;">🔨</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;">
+        <div class="stat"><div class="stat-n" id="p-stat-new">—</div><div class="stat-l">À traiter</div></div>
+        <div class="stat"><div class="stat-n" id="p-stat-cours">—</div><div class="stat-l">En cours</div></div>
+        <div class="stat"><div class="stat-n" id="p-stat-clo">—</div><div class="stat-l">Terminées</div></div>
+      </div>
+    </div>
+    <div class="scroll" id="partner-missions"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni"><div class="ni-ico">🏠</div><div class="ni-lbl gon">Accueil</div></div>
+      <div class="ni" onclick="go('s-partner-list')"><div class="ni-ico">📋</div><div class="ni-lbl">Missions</div></div>
+      <div class="ni" onclick="go('s-partner-msgs')"><div class="ni-ico">💬</div><div class="ni-lbl">Messages</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <div id="s-partner-list" class="screen">
+    <div class="topbar green"><span class="back" onclick="go('s-partner-home')">←</span><span class="tb-title">Mes missions</span></div>
+    <div class="scroll" id="partner-list-content"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-partner-home')"><div class="ni-ico">🏠</div><div class="ni-lbl">Accueil</div></div>
+      <div class="ni"><div class="ni-ico">📋</div><div class="ni-lbl gon">Missions</div></div>
+      <div class="ni" onclick="go('s-partner-msgs')"><div class="ni-ico">💬</div><div class="ni-lbl">Messages</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+  <div id="s-partner-msgs" class="screen">
+    <div class="topbar green"><span class="back" onclick="go('s-partner-home')">←</span><span class="tb-title">Messages</span></div>
+    <div class="scroll" id="partner-msgs-content"><div class="loading">Chargement…</div></div>
+    <div class="nav">
+      <div class="ni" onclick="go('s-partner-home')"><div class="ni-ico">🏠</div><div class="ni-lbl">Accueil</div></div>
+      <div class="ni" onclick="go('s-partner-list')"><div class="ni-ico">📋</div><div class="ni-lbl">Missions</div></div>
+      <div class="ni"><div class="ni-ico">💬</div><div class="ni-lbl gon">Messages</div></div>
+      <div class="ni" onclick="doLogout()"><div class="ni-ico">🚪</div><div class="ni-lbl">Quitter</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<script>
+// ============================================================
+// CONFIG — Remplace par tes vraies valeurs Supabase
+// ============================================================
+const SUPABASE_URL = 'https://pcfrpiqoddddqffpkewr.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjZnJwaXFvZGRkZHFmZnBrZXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjEzNzMsImV4cCI6MjA5NDA5NzM3M30.KZdREF8k-v10k_j9GahxXdHt-t0CEAAzDfoVogcazbw';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ============================================================
+// STATE
+// ============================================================
+let currentUser = null;
+let currentProfile = null;
+let currentRequest = null;
+let selectedRole = 'client';
+let selectedType = 'Plomberie';
+let selectedUrg = 'Normale';
+let selectedType2 = 'Plomberie';
+let selectedUrg2 = 'Normale';
+let currentFilter = 'all';
+let allRequests = [];
+let allAdminRequests = [];
+let allClients = [];
+let allPartners = [];
+let msgsChannel = null;
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.add('active');
+    onScreenEnter(id);
+  }
+}
+
+function onScreenEnter(id) {
+  if (id === 's-home') loadHome();
+  if (id === 's-dem') loadDemandes();
+  if (id === 's-msgs-list') loadMsgsList();
+  if (id === 's-histo') loadHisto();
+  if (id === 's-notif') loadNotifs();
+  if (id === 's-profil') loadProfil();
+  if (id === 's-admin-home') loadAdminHome();
+  if (id === 's-admin-dem') loadAdminDem();
+  if (id === 's-admin-clients') loadAdminClients();
+  if (id === 's-admin-partners') loadAdminPartners();
+  if (id === 's-partner-home') loadPartnerHome();
+  if (id === 's-partner-list') loadPartnerList();
+  if (id === 's-partner-msgs') loadPartnerMsgs();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, duration=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ============================================================
+// AUTH
+// ============================================================
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-pwd').value;
+  if (!email || !pwd) { toast('⚠️ Remplis tous les champs'); return; }
+  const btn = document.getElementById('btn-login');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+  btn.innerHTML = 'Se connecter'; btn.disabled = false;
+  if (error) { toast('❌ ' + (error.message === 'Invalid login credentials' ? 'Email ou mot de passe incorrect' : error.message)); return; }
+  await loadProfileAndRoute();
+}
+
+async function doAdminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const pwd = document.getElementById('admin-pwd').value;
+  if (!email || !pwd) { toast('⚠️ Remplis tous les champs'); return; }
+  const btn = document.getElementById('btn-admin-login');
+  btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pwd });
+  btn.innerHTML = 'Accéder au tableau de bord'; btn.disabled = false;
+  if (error) { toast('❌ Identifiants incorrects'); return; }
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+  if (!prof || prof.role !== 'admin') { await sb.auth.signOut(); toast('❌ Accès non autorisé'); return; }
+  currentUser = data.user; currentProfile = prof;
+  go('s-admin-home');
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const pwd = document.getElementById('reg-pwd').value;
+  const specialty = document.getElementById('reg-specialty').value;
+  if (!name || !email || !pwd) { toast('⚠️ Remplis tous les champs obligatoires'); return; }
+  if (pwd.length < 8) { toast('⚠️ Mot de passe trop court'); return; }
+  const btn = document.getElementById('btn-register');
+  btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true;
+  const { data, error } = await sb.auth.signUp({ email, password: pwd });
+  if (error) { btn.innerHTML = 'Créer mon compte'; btn.disabled = false; toast('❌ ' + error.message); return; }
+  const { error: pErr } = await sb.from('profiles').insert({
+    id: data.user.id, role: selectedRole, full_name: name, phone, specialty: specialty || null
+  });
+  btn.innerHTML = 'Créer mon compte'; btn.disabled = false;
+  if (pErr) { toast('❌ Erreur création profil'); return; }
+  toast('✅ Compte créé ! Connecte-toi.');
+  go('s-login');
+}
+
+function selectRole(r) {
+  selectedRole = r;
+  ['client','partner'].forEach(k => {
+    const el = document.getElementById('rc-'+k);
+    if (el) el.classList.toggle('selected', k === r);
+  });
+  document.getElementById('field-specialty').style.display = r === 'partner' ? 'block' : 'none';
+}
+
+async function loadProfileAndRoute() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { go('s-land'); return; }
+  currentUser = user;
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  currentProfile = prof;
+  if (!prof) { go('s-land'); return; }
+  if (prof.role === 'admin') go('s-admin-home');
+  else if (prof.role === 'partner') go('s-partner-home');
+  else go('s-home');
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null; currentProfile = null;
+  go('s-land');
+}
+
+// ============================================================
+// DEMANDE RAPIDE
+// ============================================================
+function selType(el, val) {
+  selectedType = val;
+  document.querySelectorAll('#type-grid .type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selUrg(el, val) {
+  selectedUrg = val;
+  document.querySelectorAll('#urg-row .urg-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selType2(el, val) {
+  selectedType2 = val;
+  document.querySelectorAll('#rqa-type-grid .type-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selUrg2(el, val) {
+  selectedUrg2 = val;
+  document.querySelectorAll('#rqa-urg-row .urg-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function submitRequest() {
+  const addr = document.getElementById('req-addr').value.trim();
+  const desc = document.getElementById('req-desc').value.trim();
+  const email = document.getElementById('req-email').value.trim();
+  if (!addr || !desc) { toast('⚠️ Adresse et description obligatoires'); return; }
+  const { data, error } = await sb.from('requests').insert({
+    type: selectedType, urgency: selectedUrg, description: desc,
+    status: 'nouvelle',
+    property_id: null, client_id: null
+  }).select().single();
+  if (error) { toast('❌ Erreur envoi'); return; }
+  document.getElementById('confirm-ref').textContent = data.ref;
+  go('s-confirm');
+}
+
+async function submitRequestAuth() {
+  const addr = document.getElementById('rqa-addr').value.trim();
+  const desc = document.getElementById('rqa-desc').value.trim();
+  if (!addr || !desc) { toast('⚠️ Adresse et description obligatoires'); return; }
+  const { data: prop } = await sb.from('properties').insert({
+    owner_id: currentUser.id,
+    address: addr,
+    building: document.getElementById('rqa-bat').value.trim(),
+    apartment: document.getElementById('rqa-apt').value.trim()
+  }).select().single();
+  const { data, error } = await sb.from('requests').insert({
+    client_id: currentUser.id,
+    property_id: prop?.id || null,
+    type: selectedType2, urgency: selectedUrg2,
+    description: desc, status: 'nouvelle'
+  }).select().single();
+  if (error) { toast('❌ Erreur envoi'); return; }
+  document.getElementById('confirm-ref').textContent = data.ref;
+  go('s-confirm');
+}
+
+// ============================================================
+// CLIENT — HOME
+// ============================================================
+async function loadHome() {
+  if (!currentProfile) return;
+  document.getElementById('home-name').textContent = currentProfile.full_name || 'Utilisateur';
+  document.getElementById('home-role').textContent =
+    currentProfile.role === 'client' ? 'Client' : currentProfile.role;
+  const { data: reqs } = await sb.from('requests')
+    .select('*').eq('client_id', currentUser.id)
+    .order('created_at', { ascending: false }).limit(20);
+  allRequests = reqs || [];
+  const stats = document.getElementById('home-stats');
+  const counts = [
+    reqs?.filter(r => r.status === 'nouvelle').length || 0,
+    reqs?.filter(r => ['rdv','devis','valdevis','piece'].includes(r.status)).length || 0,
+    reqs?.filter(r => r.status === 'planifiee').length || 0,
+    reqs?.filter(r => r.status === 'cloturee').length || 0
+  ];
+  const labels = ['Nouvelles','En cours','Planifiées','Clôturées'];
+  stats.innerHTML = counts.map((n, i) =>
+    `<div class="stat"><div class="stat-n">${n}</div><div class="stat-l">${labels[i]}</div></div>`
+  ).join('');
+  const list = document.getElementById('home-list');
+  const recent = (reqs || []).filter(r => r.status !== 'cloturee').slice(0, 5);
+  list.innerHTML = '<div class="section-title">Demandes récentes</div>' +
+    (recent.length ? recent.map(r => requestCard(r)).join('') : '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px;">Aucune demande pour le moment</div>');
+}
+
+function pillHtml(status) {
+  const map = {
+    nouvelle: ['pill-new','Nouvelle'], rdv: ['pill-rdv','Att. RDV'],
+    devis: ['pill-devis','Att. devis'], valdevis: ['pill-devis','Val. devis'],
+    piece: ['pill-devis','Att. pièce'], planifiee: ['pill-plan','Planifiée'],
+    cloturee: ['pill-clo','Clôturée']
+  };
+  const [cls, label] = map[status] || ['pill-new', status];
+  return `<span class="pill ${cls}">${label}</span>`;
+}
+
+function requestCard(r) {
+  const pct = {nouvelle:10,rdv:25,devis:40,valdevis:55,piece:65,planifiee:75,cloturee:100}[r.status] || 10;
+  return `<div class="card" onclick="openDetail('${r.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:600;">${r.type} ${r.description ? '— ' + r.description.substring(0,30) : ''}</div>
+      ${pillHtml(r.status)}
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:6px;">${r.ref} · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+async function loadDemandes() {
+  if (!currentUser) return;
+  const { data: reqs } = await sb.from('requests')
+    .select('*').eq('client_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  allRequests = reqs || [];
+  renderDemandes(currentFilter);
+}
+
+function filterDem(st, el) {
+  currentFilter = st;
+  document.querySelectorAll('#dem-tags .tag').forEach(t => { t.classList.remove('on'); });
+  el.classList.add('on');
+  renderDemandes(st);
+}
+
+function renderDemandes(st) {
+  const list = document.getElementById('dem-list');
+  const filtered = st === 'all' ? allRequests : allRequests.filter(r => r.status === st);
+  list.innerHTML = filtered.length
+    ? filtered.map(r => requestCard(r)).join('')
+    : '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune demande</div>';
+}
+
+async function loadHisto() {
+  if (!currentUser) return;
+  const { data: reqs } = await sb.from('requests')
+    .select('*').eq('client_id', currentUser.id).eq('status', 'cloturee')
+    .order('created_at', { ascending: false });
+  const list = document.getElementById('histo-list');
+  list.innerHTML = (reqs || []).length
+    ? (reqs || []).map(r => requestCard(r)).join('')
+    : '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune demande archivée</div>';
+}
+
+// ============================================================
+// DÉTAIL DEMANDE
+// ============================================================
+async function openDetail(id) {
+  const { data: r } = await sb.from('requests').select('*').eq('id', id).single();
+  currentRequest = r;
+  document.getElementById('detail-title').textContent = r.ref;
+  document.getElementById('detail-status').textContent = statusLabel(r.status);
+  document.getElementById('detail-info').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Référence</span><span style="font-size:11px;font-weight:600;">${r.ref}</span></div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Type</span><span style="font-size:11px;">${r.type}</span></div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Urgence</span><span style="font-size:11px;">${r.urgency}</span></div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Date</span><span style="font-size:11px;">${new Date(r.created_at).toLocaleDateString('fr-FR')}</span></div>
+      ${r.description ? `<div style="height:1px;background:var(--border);"></div><div style="font-size:11px;color:#333;line-height:1.5;">${r.description}</div>` : ''}
+    </div>`;
+  showTab('suivi');
+  go('s-detail');
+  loadDetailMsgs();
+  loadDetailDevis();
+}
+
+function statusLabel(st) {
+  const map = {
+    nouvelle:'📥 Demande reçue — un responsable va l\'examiner sous 48h.',
+    rdv:'📅 Rendez-vous à planifier.',
+    devis:'📄 Devis en cours de préparation.',
+    valdevis:'✍️ Devis à valider — votre signature est requise.',
+    piece:'📎 Pièce justificative demandée.',
+    planifiee:'🗓️ Intervention planifiée.',
+    cloturee:'✅ Dossier clôturé.'
+  };
+  return map[st] || st;
+}
+
+function showTab(tab) {
+  ['suivi','devis','msgs'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = 'none';
+  });
+  const active = document.getElementById('tab-'+tab);
+  if (active) active.style.display = tab === 'msgs' ? 'flex' : 'block';
+  document.querySelectorAll('#detail-tabs .tab').forEach((d,i) => {
+    d.className = 'tab ' + (['suivi','devis','msgs'][i] === tab ? 'on' : 'off');
+  });
+}
+
+async function loadDetailDevis() {
+  if (!currentRequest) return;
+  const { data: quotes } = await sb.from('quotes').select('*').eq('request_id', currentRequest.id);
+  const el = document.getElementById('devis-content');
+  if (!quotes || quotes.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucun devis pour le moment</div>';
+    return;
+  }
+  el.innerHTML = quotes.map(q => `
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+        <span style="font-size:13px;font-weight:600;">Devis</span>
+        <span class="pill ${q.status==='signed'?'pill-clo':'pill-devis'}">${q.status==='signed'?'Signé':'En attente'}</span>
+      </div>
+      <div style="font-size:18px;font-weight:700;color:var(--primary);margin-bottom:10px;">${q.amount ? q.amount.toLocaleString('fr-FR') + ' €' : 'Montant non précisé'}</div>
+      ${q.status !== 'signed' ? `<button class="btn btn-red" style="padding:10px;" onclick="signQuote('${q.id}')">✍️ Signer le devis</button>` : '<div style="text-align:center;font-size:12px;color:#065f46;font-weight:600;">✓ Devis signé</div>'}
+    </div>`).join('');
+}
+
+async function signQuote(id) {
+  const { error } = await sb.from('quotes').update({ status: 'signed', signed_at: new Date().toISOString(), signed_by: currentUser.id }).eq('id', id);
+  if (!error) { toast('✅ Devis signé !'); loadDetailDevis(); }
+}
+
+async function loadDetailMsgs() {
+  if (!currentRequest) return;
+  const { data: msgs } = await sb.from('messages')
+    .select('*, profiles(full_name)')
+    .eq('request_id', currentRequest.id)
+    .order('created_at');
+  renderMsgs(msgs || []);
+  subscribeToMsgs();
+}
+
+function renderMsgs(msgs) {
+  const el = document.getElementById('msgs-content');
+  el.innerHTML = msgs.map(m => {
+    const isMe = m.sender_id === currentUser?.id;
+    const time = new Date(m.created_at).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'});
+    return `<div class="${isMe ? 'bubble-out' : 'bubble-in'}">${m.content}<div style="font-size:9px;opacity:.6;margin-top:3px;text-align:right;">${time}</div></div>`;
+  }).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;">Aucun message</div>';
+  el.scrollTop = el.scrollHeight;
+}
+
+function subscribeToMsgs() {
+  if (msgsChannel) sb.removeChannel(msgsChannel);
+  if (!currentRequest) return;
+  msgsChannel = sb.channel('msgs-' + currentRequest.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `request_id=eq.${currentRequest.id}` },
+      () => loadDetailMsgs())
+    .subscribe();
+}
+
+async function sendMsg() {
+  const inp = document.getElementById('msg-inp');
+  const content = inp.value.trim();
+  if (!content || !currentRequest || !currentUser) return;
+  inp.value = '';
+  await sb.from('messages').insert({ request_id: currentRequest.id, sender_id: currentUser.id, content });
+  loadDetailMsgs();
+}
+
+// ============================================================
+// MESSAGES LIST
+// ============================================================
+async function loadMsgsList() {
+  if (!currentUser) return;
+  const { data: reqs } = await sb.from('requests').select('*').eq('client_id', currentUser.id);
+  const el = document.getElementById('msgs-list-content');
+  el.innerHTML = (reqs || []).map(r => `
+    <div class="card" onclick="openDetail('${r.id}');showTab('msgs')">
+      <div style="font-size:13px;font-weight:600;margin-bottom:2px;">${r.ref}</div>
+      <div style="font-size:11px;color:var(--muted);">${r.type} · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune conversation</div>';
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+async function loadNotifs() {
+  if (!currentUser) return;
+  const { data: notifs } = await sb.from('notifications').select('*').eq('user_id', currentUser.id).order('created_at', {ascending: false}).limit(20);
+  const el = document.getElementById('notif-list');
+  el.innerHTML = (notifs || []).map(n => `
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:8px;${!n.read?'border-left:3px solid var(--primary);':''}">
+      <div style="font-size:13px;font-weight:600;margin-bottom:2px;">${n.title || 'Notification'}</div>
+      <div style="font-size:11px;color:#555;">${n.body || ''}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;">${new Date(n.created_at).toLocaleDateString('fr-FR')}</div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune notification</div>';
+}
+
+// ============================================================
+// PROFIL
+// ============================================================
+async function loadProfil() {
+  if (!currentProfile) return;
+  document.getElementById('profil-info').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;">${(currentProfile.full_name||'?').substring(0,2).toUpperCase()}</div>
+      <div><div style="font-size:16px;font-weight:700;">${currentProfile.full_name||'—'}</div><div style="font-size:11px;color:var(--muted);">${currentProfile.role} · ${currentUser?.email}</div></div>
+    </div>
+    ${currentProfile.phone ? `<div style="font-size:12px;color:#555;">📞 ${currentProfile.phone}</div>` : ''}
+    ${currentProfile.specialty ? `<div style="font-size:12px;color:#555;margin-top:4px;">🔨 ${currentProfile.specialty}</div>` : ''}`;
+}
+
+// ============================================================
+// ADMIN
+// ============================================================
+async function loadAdminHome() {
+  const { data: reqs } = await sb.from('requests').select('*').order('created_at', {ascending: false}).limit(50);
+  allAdminRequests = reqs || [];
+  const counts = {
+    new: reqs?.filter(r => r.status === 'nouvelle').length || 0,
+    cours: reqs?.filter(r => ['rdv','devis','valdevis','piece','planifiee'].includes(r.status)).length || 0,
+    clo: reqs?.filter(r => r.status === 'cloturee').length || 0
+  };
+  document.getElementById('adm-stat-new').textContent = counts.new;
+  document.getElementById('adm-stat-cours').textContent = counts.cours;
+  document.getElementById('adm-stat-clo').textContent = counts.clo;
+  const el = document.getElementById('admin-recent');
+  el.innerHTML = '<div class="section-title">Dernières demandes</div>' +
+    (reqs || []).slice(0,10).map(r => adminRequestCard(r)).join('');
+}
+
+function adminRequestCard(r) {
+  return `<div class="card" style="border-left:3px solid ${statusColor(r.status)};" onclick="openAdminDetail('${r.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:600;">${r.type} ${r.urgency === 'Urgente' ? '🚨' : ''}</div>
+      ${pillHtml(r.status)}
+    </div>
+    <div style="font-size:10px;color:var(--muted);">${r.ref} · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+    ${r.description ? `<div style="font-size:11px;color:#555;margin-top:4px;">${r.description.substring(0,60)}${r.description.length>60?'…':''}</div>` : ''}
+  </div>`;
+}
+
+function statusColor(st) {
+  const map = {nouvelle:'#ef4444',rdv:'#f97316',devis:'#eab308',planifiee:'#3b82f6',cloturee:'#22c55e'};
+  return map[st] || '#aaa';
+}
+
+async function loadAdminDem() {
+  const { data: reqs } = await sb.from('requests').select('*').order('created_at', {ascending: false});
+  allAdminRequests = reqs || [];
+  renderAdminDem('all');
+}
+
+function filterAdminDem(st, el) {
+  document.querySelectorAll('#admin-dem-tags .tag').forEach(t => { t.classList.remove('aon'); t.classList.remove('on'); });
+  el.classList.add('aon');
+  renderAdminDem(st);
+}
+
+function renderAdminDem(st) {
+  const filtered = st === 'all' ? allAdminRequests : allAdminRequests.filter(r => r.status === st);
+  document.getElementById('admin-dem-list').innerHTML = filtered.map(r => adminRequestCard(r)).join('') ||
+    '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune demande</div>';
+}
+
+async function openAdminDetail(id) {
+  const { data: r } = await sb.from('requests').select('*, profiles!client_id(full_name,phone), partners:profiles!partner_id(full_name)').eq('id', id).single();
+  const { data: partners } = await sb.from('profiles').select('id,full_name,specialty').eq('role','partner').eq('active',true);
+  currentRequest = r;
+  document.getElementById('admin-detail-title').textContent = r.ref;
+  document.getElementById('admin-detail-content').innerHTML = `
+    <div class="section-title">Informations</div>
+    <div style="background:#fff;border-radius:12px;border:1px solid var(--border);padding:12px;margin-bottom:12px;">
+      <div style="display:flex;flex-direction:column;gap:7px;">
+        <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Type</span><span style="font-size:11px;">${r.type}</span></div>
+        <div style="height:1px;background:var(--border);"></div>
+        <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Urgence</span><span style="font-size:11px;">${r.urgency}</span></div>
+        <div style="height:1px;background:var(--border);"></div>
+        <div style="display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--muted);">Client</span><span style="font-size:11px;">${r.profiles?.full_name || '(visiteur)'}</span></div>
+        <div style="height:1px;background:var(--border);"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:11px;color:var(--muted);">Statut</span>${pillHtml(r.status)}</div>
+        ${r.description ? `<div style="height:1px;background:var(--border);"></div><div style="font-size:11px;color:#333;line-height:1.5;">${r.description}</div>` : ''}
+      </div>
+    </div>
+    <div class="section-title">Changer le statut</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+      ${['nouvelle','rdv','devis','valdevis','piece','planifiee','cloturee'].map(s =>
+        `<button onclick="changeStatus('${r.id}','${s}')" style="padding:6px 12px;border-radius:99px;border:1px solid var(--border);background:${r.status===s?'var(--admin)':'#fff'};color:${r.status===s?'#fff':'#555'};font-size:11px;cursor:pointer;">${pillHtml(s).replace(/class="pill [^"]*"/,'').replace(/<span |<\/span>/g,'').trim()}</button>`
+      ).join('')}
+    </div>
+    <div class="section-title">Assigner un partenaire</div>
+    <select class="inp" id="assign-partner" onchange="assignPartner('${r.id}',this.value)" style="margin-bottom:14px;">
+      <option value="">— Choisir un partenaire —</option>
+      ${(partners||[]).map(p => `<option value="${p.id}" ${r.partner_id===p.id?'selected':''}>${p.full_name} (${p.specialty||'—'})</option>`).join('')}
+    </select>
+    <div class="section-title">Description</div>
+    <div style="background:#fff;border-radius:10px;border:1px solid var(--border);padding:12px;font-size:12px;color:#333;line-height:1.6;">${r.description || 'Aucune description'}</div>
+  `;
+  go('s-admin-detail');
+}
+
+async function changeStatus(id, status) {
+  const { error } = await sb.from('requests').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+  if (!error) { toast('✅ Statut mis à jour'); openAdminDetail(id); }
+}
+
+async function assignPartner(reqId, partnerId) {
+  if (!partnerId) return;
+  const { error } = await sb.from('requests').update({ partner_id: partnerId }).eq('id', reqId);
+  if (!error) toast('✅ Partenaire assigné');
+}
+
+async function loadAdminClients() {
+  const { data: clients } = await sb.from('profiles').select('*').eq('role','client').order('created_at',{ascending:false});
+  allClients = clients || [];
+  renderAdminClients('');
+}
+
+function filterAdminClients(q) { renderAdminClients(q); }
+
+function renderAdminClients(q) {
+  const filtered = q ? allClients.filter(c => (c.full_name||'').toLowerCase().includes(q.toLowerCase()) || (c.company||'').toLowerCase().includes(q.toLowerCase())) : allClients;
+  document.getElementById('admin-clients-list').innerHTML = filtered.map(c => `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">${(c.full_name||'?').substring(0,2).toUpperCase()}</div>
+        <div><div style="font-size:13px;font-weight:600;">${c.full_name||'—'}</div><div style="font-size:11px;color:var(--muted);">${c.company||''} · ${new Date(c.created_at).toLocaleDateString('fr-FR')}</div></div>
+      </div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucun client</div>';
+}
+
+async function loadAdminPartners() {
+  const { data: partners } = await sb.from('profiles').select('*').eq('role','partner').order('created_at',{ascending:false});
+  allPartners = partners || [];
+  renderAdminPartners('');
+}
+
+function filterAdminPartners(q) { renderAdminPartners(q); }
+
+function renderAdminPartners(q) {
+  const filtered = q ? allPartners.filter(p => (p.full_name||'').toLowerCase().includes(q.toLowerCase()) || (p.specialty||'').toLowerCase().includes(q.toLowerCase())) : allPartners;
+  document.getElementById('admin-partners-list').innerHTML = filtered.map(p => `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--partner-light);color:var(--partner);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;">${(p.full_name||'?').substring(0,2).toUpperCase()}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;">${p.full_name||'—'}</div>
+          <div style="font-size:11px;color:var(--muted);">${p.specialty||'—'} · ⭐ ${p.rating||'N/A'}</div>
+        </div>
+        <div style="font-size:10px;padding:4px 8px;border-radius:99px;background:${p.active?'var(--partner-light)':'#f5f5f5'};color:${p.active?'var(--partner)':'#aaa'};">${p.active?'Actif':'Inactif'}</div>
+      </div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucun partenaire</div>';
+}
+
+// ============================================================
+// PARTENAIRE
+// ============================================================
+async function loadPartnerHome() {
+  if (!currentProfile) return;
+  document.getElementById('partner-name').textContent = currentProfile.full_name || 'Partenaire';
+  document.getElementById('partner-specialty').textContent = currentProfile.specialty || 'Artisan';
+  const { data: reqs } = await sb.from('requests').select('*').eq('partner_id', currentUser.id).order('created_at',{ascending:false}).limit(20);
+  const counts = {
+    new: reqs?.filter(r => ['rdv','devis'].includes(r.status)).length || 0,
+    cours: reqs?.filter(r => r.status === 'planifiee').length || 0,
+    clo: reqs?.filter(r => r.status === 'cloturee').length || 0
+  };
+  document.getElementById('p-stat-new').textContent = counts.new;
+  document.getElementById('p-stat-cours').textContent = counts.cours;
+  document.getElementById('p-stat-clo').textContent = counts.clo;
+  const el = document.getElementById('partner-missions');
+  el.innerHTML = '<div class="section-title">Missions récentes</div>' +
+    (reqs||[]).slice(0,5).map(r => partnerMissionCard(r)).join('') ||
+    '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px;">Aucune mission assignée</div>';
+}
+
+function partnerMissionCard(r) {
+  return `<div class="card" style="border-left:3px solid ${statusColor(r.status)};">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+      <div style="font-size:13px;font-weight:600;">${r.type}</div>${pillHtml(r.status)}
+    </div>
+    <div style="font-size:11px;color:var(--muted);">${r.ref} · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+    ${r.description ? `<div style="font-size:11px;color:#555;margin-top:4px;">${r.description.substring(0,60)}…</div>` : ''}
+  </div>`;
+}
+
+async function loadPartnerList() {
+  const { data: reqs } = await sb.from('requests').select('*').eq('partner_id', currentUser.id).order('created_at',{ascending:false});
+  document.getElementById('partner-list-content').innerHTML = (reqs||[]).map(r => partnerMissionCard(r)).join('') ||
+    '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune mission</div>';
+}
+
+async function loadPartnerMsgs() {
+  const { data: reqs } = await sb.from('requests').select('id,ref,type,created_at').eq('partner_id', currentUser.id);
+  document.getElementById('partner-msgs-content').innerHTML = (reqs||[]).map(r => `
+    <div class="card" onclick="currentRequest={id:'${r.id}',ref:'${r.ref}'};go('s-detail');showTab('msgs');loadDetailMsgs()">
+      <div style="font-size:13px;font-weight:600;margin-bottom:2px;">${r.ref}</div>
+      <div style="font-size:11px;color:var(--muted);">${r.type}</div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--muted);font-size:12px;padding:30px;">Aucune conversation</div>';
+}
+
+// ============================================================
+// INIT — Vérification session au démarrage
+// ============================================================
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    const { data: prof } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    currentProfile = prof;
+    if (prof?.role === 'admin') go('s-admin-home');
+    else if (prof?.role === 'partner') go('s-partner-home');
+    else if (prof) go('s-home');
+  }
+  // Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
 </body>
 </html>
